@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import Icon from '@/components/ui/icon';
 import Game, { GameButton } from '@/components/Game';
+import ParkourGame from '@/components/ParkourGame';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 type Rarity = 'legendary' | 'epic' | 'rare' | 'common';
 
@@ -71,7 +73,8 @@ const getRarityBg = (rarity: Rarity): string => {
 export default function Index() {
   const [selectedRarity, setSelectedRarity] = useState<Rarity | 'all'>('all');
   const [balance] = useState(5000);
-  const [isGameActive, setIsGameActive] = useState(false);
+  const [gameMode, setGameMode] = useState<'menu' | 'shooter' | 'parkour'>('menu');
+  const [showGameModeDialog, setShowGameModeDialog] = useState(false);
 
   const filteredSkins = selectedRarity === 'all' 
     ? weaponSkins 
@@ -79,8 +82,12 @@ export default function Index() {
 
   const ownedSkins = weaponSkins.filter(skin => skin.owned);
 
-  if (isGameActive) {
-    return <Game onExit={() => setIsGameActive(false)} />;
+  if (gameMode === 'shooter') {
+    return <Game onExit={() => setGameMode('menu')} />;
+  }
+
+  if (gameMode === 'parkour') {
+    return <ParkourGame onExit={() => setGameMode('menu')} />;
   }
 
   return (
@@ -98,7 +105,7 @@ export default function Index() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <GameButton onPlay={() => setIsGameActive(true)} />
+              <GameButton onPlay={() => setShowGameModeDialog(true)} />
               <div className="flex items-center gap-2 bg-secondary px-4 py-2 rounded-lg">
                 <Icon name="Coins" size={20} className="text-primary" />
                 <span className="font-semibold">${balance}</span>
@@ -346,6 +353,43 @@ export default function Index() {
           </TabsContent>
         </Tabs>
       </main>
+
+      <Dialog open={showGameModeDialog} onOpenChange={setShowGameModeDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">Select Game Mode</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 gap-4 py-4">
+            <Button
+              onClick={() => {
+                setGameMode('shooter');
+                setShowGameModeDialog(false);
+              }}
+              className="h-24 text-lg bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600"
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Icon name="Target" size={32} />
+                <span>Shooter Mode</span>
+                <span className="text-xs opacity-80">Combat on de_sandstone</span>
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => {
+                setGameMode('parkour');
+                setShowGameModeDialog(false);
+              }}
+              className="h-24 text-lg bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Icon name="Rocket" size={32} />
+                <span>Parkour Mode</span>
+                <span className="text-xs opacity-80">Jump across platforms</span>
+              </div>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
