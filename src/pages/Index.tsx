@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import Icon from '@/components/ui/icon';
+import Game, { GameButton } from '@/components/Game';
 
 type Rarity = 'legendary' | 'epic' | 'rare' | 'common';
 
@@ -70,12 +71,17 @@ const getRarityBg = (rarity: Rarity): string => {
 export default function Index() {
   const [selectedRarity, setSelectedRarity] = useState<Rarity | 'all'>('all');
   const [balance] = useState(5000);
+  const [isGameActive, setIsGameActive] = useState(false);
 
   const filteredSkins = selectedRarity === 'all' 
     ? weaponSkins 
     : weaponSkins.filter(skin => skin.rarity === selectedRarity);
 
   const ownedSkins = weaponSkins.filter(skin => skin.owned);
+
+  if (isGameActive) {
+    return <Game onExit={() => setIsGameActive(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,6 +98,7 @@ export default function Index() {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <GameButton onPlay={() => setIsGameActive(true)} />
               <div className="flex items-center gap-2 bg-secondary px-4 py-2 rounded-lg">
                 <Icon name="Coins" size={20} className="text-primary" />
                 <span className="font-semibold">${balance}</span>
